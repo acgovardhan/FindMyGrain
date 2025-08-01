@@ -1,27 +1,611 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Find-My-Grain-App</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    #videoInput, canvas { border: 1px solid #333; margin: 10px auto; display: block; }
-    input, button { margin: 5px; padding: 10px; }
-    #nameList { margin-top: 10px; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8" />
+    <title>findMygrain 🍚</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Variables for a more attractive palette --- */
+        :root {
+            --primary-accent: #ff7e5f; /* A vibrant, warm orange-red */
+            --secondary-accent: #feb47b; /* A softer, complementary orange */
+            --dark-text: #334155; /* Deep charcoal for main text */
+            --light-text: #64748b; /* Softer gray for secondary text */
+            --background-light: #fdf2e9; /* Very light cream background */
+            --card-background: #ffffff; /* Pure white for cards */
+            --border-color-light: #e2e8f0; /* Light gray border */
+            --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --border-radius-soft: 12px;
+            --border-radius-round: 9999px; /* For pill shapes */
+        }
+
+        /* Base styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', sans-serif; /* Using Inter for a modern look */
+            background: linear-gradient(135deg, var(--background-light), #f0e6d6); /* Subtle gradient */
+            scroll-behavior: smooth;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            color: var(--dark-text); /* Default text color */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Landing Section --- */
+        .landing {
+            display: flex;
+            flex-direction: row; /* Default for larger screens */
+            flex-wrap: wrap;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            gap: 40px;
+            background: linear-gradient(135deg, var(--secondary-accent), var(--primary-accent)); /* More vibrant gradient */
+            flex-grow: 1;
+            color: white; /* Text color for landing section */
+            position: relative; /* For subtle background elements */
+            overflow: hidden; /* Hide overflow from background elements */
+        }
+
+        /* Subtle background patterns/elements for landing */
+        .landing::before, .landing::after {
+            content: '';
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(50px);
+            z-index: 0;
+        }
+        .landing::before {
+            width: 300px; height: 300px;
+            top: -50px; left: -50px;
+            animation: blob-float 8s ease-in-out infinite alternate;
+        }
+        .landing::after {
+            width: 200px; height: 200px;
+            bottom: -50px; right: -50px;
+            animation: blob-float 7s ease-in-out infinite reverse;
+        }
+
+        @keyframes blob-float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(20px, 20px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+
+        .left-landing, .right-landing {
+            flex: 1 1 320px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: fadeInUp 1s ease;
+            position: relative; /* Ensure content is above background elements */
+            z-index: 1;
+        }
+
+        .left-landing {
+            order: 1;
+        }
+
+        .right-landing {
+            order: 2;
+        }
+
+        .left-landing img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: var(--border-radius-soft);
+            box-shadow: var(--shadow-medium); /* More prominent shadow */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border: 5px solid white; /* Clean white border */
+        }
+
+        .left-landing img:hover {
+            transform: scale(1.05) rotate(2deg); /* Added slight rotation */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-heading {
+            font-size: 4.5rem; /* Slightly larger */
+            color: white; /* White for contrast on gradient */
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+            font-weight: 800; /* Bolder */
+            letter-spacing: -0.05em; /* Tighter spacing */
+        }
+
+        .quote {
+            font-size: 1.8rem;
+            color: var(--dark-text); /* Darker text for readability on lighter background */
+            margin-bottom: 25px;
+            background: var(--card-background); /* White background for quote */
+            padding: 20px 25px;
+            border-left: 8px solid var(--primary-accent); /* Accent color border */
+            border-radius: var(--border-radius-soft);
+            box-shadow: var(--shadow-soft); /* Soft shadow */
+            line-height: 1.4; /* Better readability */
+
+            /* New: Scrolling text properties */
+            white-space: nowrap; /* Prevent text from wrapping */
+            overflow: hidden; /* Hide overflowing text */
+            position: relative; /* For absolute positioning of inner span */
+            max-width: 100%; /* Ensure it respects parent width */
+            display: inline-block; /* Allow padding/margin to apply correctly */
+        }
+
+        .quote span.scrolling-text {
+            display: inline-block; /* Make the span behave like a block for animation */
+            padding-left: 100%; /* Start the text off-screen to the right */
+            animation: scroll-left 15s linear infinite; /* Animation definition */
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); } /* Scroll to the left */
+        }
+
+        /* Original quote animation (no longer directly applied to .quote but kept for reference if needed elsewhere) */
+        @keyframes quote-loop-float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .start-button {
+            /* Reverted to old color */
+            background-color: #6d4c41;
+            color: white;
+            border: none;
+            padding: 18px 35px; /* Larger padding */
+            font-size: 1.3rem; /* Larger font */
+            font-weight: 700;
+            border-radius: var(--border-radius-round); /* Pill shape */
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            letter-spacing: 0.05em; /* Slight letter spacing */
+        }
+
+        .start-button:hover {
+            /* Reverted to old hover color */
+            background-color: #5d4037;
+            transform: scale(1.08) translateY(-3px); /* Pop out and slight lift */
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            font-size: 0.9rem; /* Slightly larger */
+            color: rgba(255, 255, 255, 0.8); /* Lighter white for footer */
+            margin-top: 30px; /* More space */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Scanner Section --- */
+        #scanner-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 100vh;
+            padding: 50px 20px;
+            background-color: var(--card-background); /* White background */
+            border-top: 3px dashed var(--primary-accent); /* Accent color dashed border */
+            width: 100%;
+            max-width: 900px;
+            margin: 40px auto; /* More margin for separation */
+            border-radius: var(--border-radius-soft);
+            box-shadow: var(--shadow-medium); /* Consistent shadow */
+        }
+
+        #scanner-section h2 {
+            font-size: 3rem; /* Larger */
+            margin-bottom: 15px;
+            color: var(--dark-text);
+            border-bottom: 4px solid var(--primary-accent); /* Thicker accent border */
+            padding-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        #scanner-section p {
+            font-size: 1.15rem; /* Slightly larger */
+            color: var(--light-text);
+            margin-bottom: 25px;
+        }
+
+        #nameInput {
+            padding: 14px; /* Larger padding */
+            font-size: 1.1em;
+            width: 100%;
+            max-width: 380px; /* Slightly wider */
+            margin: 15px auto;
+            border: 2px solid var(--border-color-light);
+            border-radius: var(--border-radius-soft);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06); /* Inner shadow */
+            transition: all 0.3s ease-in-out;
+        }
+
+        #nameInput:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.3), inset 0 1px 3px rgba(0, 0, 0, 0.06); /* Accent glow */
+        }
+
+        .assign-btn {
+            background-color: var(--primary-accent); /* Consistent accent color */
+            border: none;
+            padding: 14px 28px; /* Larger padding */
+            margin: 8px;
+            font-size: 1.05rem; /* Slightly larger */
+            font-weight: 600;
+            border-radius: var(--border-radius-soft);
+            color: white;
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .assign-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            background-color: #ff6a4a; /* Slightly darker hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        #nameList {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: var(--dark-text);
+            width: 100%;
+            max-width: 450px; /* Wider list */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px; /* More space between items */
+        }
+        #nameList div {
+            background-color: var(--background-light); /* Lighter background for items */
+            padding: 8px 16px; /* Larger padding */
+            border-radius: var(--border-radius-round); /* Pill shape */
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color-light);
+            white-space: nowrap;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle inner shadow */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        #nameList div:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        video, canvas {
+            width: 100%;
+            max-width: 450px; /* Wider media elements */
+            height: auto;
+            margin-top: 30px; /* More space */
+            border-radius: var(--border-radius-soft);
+            box-shadow: var(--shadow-medium);
+            display: block;
+            background-color: #f0f0f0; /* Placeholder background */
+        }
+
+        #snapshotPreview {
+            width: 100%;
+            max-width: 380px; /* Wider preview */
+            height: auto;
+            border-radius: var(--border-radius-soft);
+            margin-top: 25px;
+            box-shadow: var(--shadow-medium);
+            border: 2px solid var(--border-color-light);
+        }
+
+        /* Go Back Button Container and Button */
+        #goBackContainer {
+            position: relative;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 40px auto; /* More margin */
+        }
+
+        #goBackBtn {
+            position: absolute;
+            padding: 15px 30px; /* Larger padding */
+            font-size: 1.1rem; /* Larger font */
+            background-color: #d6804a; /* Original color, can be adjusted to palette */
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-round); /* Pill shape */
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+            transition: top 0.2s, left 0.2s, background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            letter-spacing: 0.02em;
+        }
+        #goBackBtn:hover {
+            background-color: #6f643a; /* Darker hover */
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 6px 15px rgba(197, 151, 81, 0.2);
+        }
+
+
+        /* "Catch Me If You Can" Section */
+        .catch-me-section {
+            min-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 40px 20px; /* More padding */
+            background-color: var(--background-light); /* Consistent background */
+            border-top: 1px solid var(--border-color-light); /* Subtle border */
+        }
+
+        .catch-me-section h2 {
+            color: var(--dark-text);
+            font-size: 3rem; /* Larger */
+            margin-bottom: 30px; /* More space */
+            font-weight: 700;
+        }
+
+        #runaway-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px; /* Wider container */
+            height: 350px; /* Taller container */
+            border: 2px dashed var(--border-color-light); /* Lighter border */
+            border-radius: var(--border-radius-soft);
+            background-color: var(--card-background); /* White background */
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Media Queries for Responsiveness --- */
+        @media (max-width: 768px) {
+            .landing {
+                flex-direction: column;
+                height: auto;
+                padding-top: 60px;
+                padding-bottom: 60px;
+            }
+
+            .left-landing {
+                order: 1;
+            }
+
+            .right-landing {
+                order: 2;
+            }
+
+            .main-heading {
+                font-size: 3rem; /* Smaller for mobile */
+            }
+
+            .quote {
+                font-size: 1.4rem;
+                padding: 15px 20px;
+            }
+
+            .left-landing img {
+                max-width: 300px;
+            }
+
+            .start-button {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+
+            footer {
+                margin-top: 20px;
+            }
+
+            #scanner-section {
+                padding: 30px 15px;
+                margin: 30px auto;
+            }
+
+            #scanner-section h2 {
+                font-size: 2.2rem;
+            }
+
+            #scanner-section p {
+                font-size: 1rem;
+            }
+
+            #nameInput {
+                max-width: 100%;
+            }
+
+            .assign-btn {
+                padding: 12px 24px;
+                font-size: 0.95rem;
+            }
+
+            #nameList {
+                max-width: 100%;
+            }
+
+            video, canvas, #snapshotPreview {
+                max-width: 100%;
+            }
+
+            #goBackContainer {
+                height: 150px;
+                max-width: 100%;
+                margin: 30px auto;
+            }
+
+            .catch-me-section h2 {
+                font-size: 2.2rem;
+            }
+
+            #runaway-container {
+                max-width: 90%;
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-heading {
+                font-size: 2.5rem;
+            }
+            .quote {
+                font-size: 1.2rem;
+                padding: 12px 18px;
+            }
+            .start-button {
+                font-size: 1rem;
+                padding: 12px 25px;
+            }
+            #scanner-section h2 {
+                font-size: 1.8rem;
+            }
+            #scanner-section p {
+                font-size: 0.9rem;
+            }
+            .assign-btn {
+                font-size: 0.85rem;
+                padding: 10px 20px;
+                margin: 5px;
+            }
+            #nameList {
+                font-size: 0.85rem;
+            }
+            #nameList div {
+                padding: 5px 10px;
+            }
+            #goBackBtn {
+                font-size: 0.9rem;
+                padding: 12px 24px;
+            }
+            .catch-me-section h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>Find My Grain</h2>
-  <p>Enter participant name and click Add:</p>
-  <input type="text" id="nameInput" placeholder="Enter name" />
-  <button onclick="addParticipant()">Add</button>
-  <div id="nameList"></div>
 
-  <button onclick="startApp()">Start Camera & Assign</button>
-  <button onclick="stopCamera()">Stop Camera</button>
+    <section class="landing">
+        <div class="left-landing">
+            <!-- Placeholder image for Mohanlal. You can replace src="./mohanlall.png" -->
+            <img src="./mohanlall.png" alt="Mohanlal" />
+        </div>
+        <div class="right-landing">
+            <h1 class="main-heading">FindMyGrain</h1>
+            <div class="quote">
+                <span class="scrolling-text">“ഇത് വെറും അരിയല്ല... ഇതാണ് തിരിച്ചറിയൽ!”</span>
+            </div>
+            <button class="start-button" onclick="document.getElementById('scanner-section').scrollIntoView({ behavior: 'smooth' })">
+                Start Scanning
+            </button>
+            <footer>Approved by Lalettan ✨</footer>
+        </div>
+    </section>
 
-  <video id="videoInput" width="400" height="300" autoplay muted playsinline></video>
-  <canvas id="outputCanvas" width="400" height="300"></canvas>
+    
+
+    
+
+    <section class="catch-me-section">
+            <div id="goBackContainer">
+        <button id="goBackBtn" onclick="document.querySelector('.landing').scrollIntoView({ behavior: 'smooth' })">
+            Go Back
+        </button>
+    </div>  
+    </section>
+
+    <script>
+        // --- Original Functions (Unchanged Logic) ---
+        function addParticipant() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (name) {
+                const list = document.getElementById('nameList');
+                const div = document.createElement('div');
+                div.textContent = "👤 " + name;
+                // Applying pure CSS styles directly from new variables/design
+                div.style.backgroundColor = 'var(--background-light)';
+                div.style.padding = '8px 16px';
+                div.style.borderRadius = 'var(--border-radius-round)';
+                div.style.fontSize = '0.95rem';
+                div.style.border = '1px solid var(--border-color-light)';
+                div.style.whiteSpace = 'nowrap';
+                div.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.05)';
+                div.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+                list.appendChild(div);
+                document.getElementById('nameInput').value = '';
+            }
+        }
+
+        function startApp() {
+            alert("📷 Starting camera... (placeholder)");
+        }
+
+        function stopCamera() {
+            alert("❌ Stopping camera... (placeholder)");
+        }
+
+        // --- Go Back Button Logic ---
+        const goBackBtn = document.getElementById('goBackBtn');
+        const goBackContainer = document.getElementById('goBackContainer');
+
+        function moveGoBackButton() {
+            const containerRect = goBackContainer.getBoundingClientRect();
+            const buttonRect = goBackBtn.getBoundingClientRect();
+
+            // Calculate max movable area within the container
+            const maxX = containerRect.width - buttonRect.width;
+            const maxY = containerRect.height - buttonRect.height;
+
+            // Generate random X and Y offsets relative to the container's top-left
+            const newX = Math.random() * maxX;
+            const newY = Math.random() * maxY;
+
+            // Apply the new position using 'left' and 'top' for absolute positioning
+            goBackBtn.style.left = `${newX}px`;
+            goBackBtn.style.top = `${newY}px`;
+        }
+
+        goBackBtn.addEventListener('mouseenter', moveGoBackButton);
+        goBackBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent default touch behavior (like scrolling)
+            moveGoBackButton();
+        }, { passive: false }); // Use passive: false to allow preventDefault
+    </script>
 </body>
 </html>
