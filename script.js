@@ -9,8 +9,29 @@ let cap, src, gray, blur, thresh, contours, hierarchy;
 let streaming = false;
 let videoStream = null;
 let assignedGrains = [];
+const stopBtn = document.getElementById('stop-btn');
 
-const stopBtn = document.getElementById('stop-btn')
+const synth = window.speechSynthesis;
+
+function speakName(name) {
+  if (synth.speaking) synth.cancel();
+  const utterance = new SpeechSynthesisUtterance(name);
+  synth.speak(utterance);
+}
+
+canvas.addEventListener('click', function (e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  for (let g of assignedGrains) {
+    const dist = Math.hypot(g.cx - x, g.cy - y);
+    if (dist < 20) {
+      speakName(g.name);
+      break;
+    }
+  }
+});
 
 function getDistinctColor(index, total) {
   const hue = (index * 360 / total) % 360;
@@ -59,43 +80,34 @@ function startCamera() {
     processFrame();
   });
   stopBtn.textContent = "Take a Snap Shot";
-  canvas.style.display="block";
+  canvas.style.display = "block";
   document.getElementById('main-wrapper').classList.add('full-camera');
-  //canvas.classList.remove('canvas-expanded');
 }
 
 function stopCamera() {
   streaming = false;
-
   if (videoStream) {
     videoStream.getTracks().forEach(track => track.stop());
     videoStream = null;
   }
-
   if (cap) cap = null;
 
   const dataURL = canvas.toDataURL("image/png");
-  const previewImg = document.getElementById("snapshotPreview");
-  previewImg.src = dataURL;
+  document.getElementById("snapshotPreview").src = dataURL;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   assignedGrains = [];
   stopBtn.textContent = "Stop Camera";
-  canvas.style.display="none";
+  canvas.style.display = "none";
   document.getElementById('main-wrapper').classList.remove('full-camera');
-  //canvas.classList.remove('canvas-expanded');
 }
-
 
 function processFrame() {
   if (!streaming) return;
 
   src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
-  gray = new cv.Mat();
-  blur = new cv.Mat();
-  thresh = new cv.Mat();
-  contours = new cv.MatVector();
-  hierarchy = new cv.Mat();
+  gray = new cv.Mat(); blur = new cv.Mat(); thresh = new cv.Mat();
+  contours = new cv.MatVector(); hierarchy = new cv.Mat();
 
   cap.read(src);
   cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
@@ -125,7 +137,6 @@ function processFrame() {
   }
 
   let newAssignments = [];
-
   for (let i = 0; i < validContours.length; ++i) {
     let cnt = validContours[i].contour;
     let index = validContours[i].index;
@@ -139,8 +150,6 @@ function processFrame() {
       let dist = Math.hypot(g.cx - cx, g.cy - cy);
       if (dist < 20) {
         newAssignments.push({ cx, cy, name: g.name, color: g.color });
-        //let rect = cv.boundingRect(cnt);
-        //cv.rectangle(src, new cv.Point(rect.x, rect.y), new cv.Point(rect.x + rect.width, rect.y + rect.height), color, 2);
         cv.drawContours(src, contours, index, g.color, 1);
         cv.putText(src, g.name, new cv.Point(cx - 10, cy), cv.FONT_HERSHEY_SIMPLEX, 0.4, new cv.Scalar(255, 255, 255), 1);
         matched = true;
@@ -154,9 +163,6 @@ function processFrame() {
       let color = colors[idx];
       newAssignments.push({ cx, cy, name, color });
       cv.drawContours(src, contours, index, color, 1);
-      //let rect = cv.boundingRect(cnt);
-      //cv.rectangle(src, new cv.Point(rect.x, rect.y), new cv.Point(rect.x + rect.width, rect.y + rect.height), color, 2);
-
       cv.putText(src, name, new cv.Point(cx - 10, cy), cv.FONT_HERSHEY_SIMPLEX, 0.4, new cv.Scalar(255, 255, 255), 1);
     }
   }
@@ -178,5 +184,94 @@ function startApp() {
   assignedGrains = [];
   startCamera();
 }
+// 🟢 Add this function at the end of your script or near your helper functions
+// Remove the existing canvas.addEventListener and speakGrain functions
+// And replace with these:
 
-//goback
+canvas.addEventListener('click', function (e) {
+  // Log the click event to confirm it's firing
+  console.log('Canvas clicked!');
+  
+  const rect = canvas.getBoundingClientRect();
+  
+  // Calculate raw click coordinates relative to the top-left of the canvas
+  const xRaw = e.clientX - rect.left;
+  const yRaw = e.clientY - rect.top;
+
+  // Calculate the scaling factors between the displayed size and the canvas's internal drawing size
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  // Scale the raw click coordinates to the canvas's internal resolution
+  const x = xRaw * scaleX;
+  const y = yRaw * scaleY;
+
+  // Log the calculated, scaled coordinates
+  console.log(`Scaled click coordinates: x=${x}, y=${y}`);
+  
+  let grainFound = false;
+
+  for (let grain of assignedGrains) {
+    const dx = grain.cx - x;
+    const dy = grain.cy - y;
+    const dist = Math.hypot(dx, dy);
+
+    // Log the grain's details and the distance from the click
+    console.log(`Checking grain: name=${grain.name}, cx=${grain.cx}, cy=${grain.cy}, distance=${dist}`);
+
+    if (dist < 20) {
+      console.log(`Match found! Calling speakGrain with name: ${grain.name}`);
+      speakGrain(grain.name);
+      grainFound = true;
+      break;
+    }
+  }
+  
+  if (!grainFound) {
+    console.log('No grain found at this location.');
+  }
+});
+
+
+function speakGrain(name) {
+  // Log that the function is being called and with what name
+  console.log(`speakGrain function called. Name to speak: ${name}`);
+
+  // Check if the browser supports the Web Speech API
+  if (!('speechSynthesis' in window)) {
+    console.error('Web Speech API is not supported by this browser.');
+    return;
+  }
+  
+  const synth = window.speechSynthesis;
+  
+  // Guard against speaking a non-string or empty name
+  if (typeof name !== 'string' || name.trim() === '') {
+    console.warn('speakGrain called with an invalid name:', name);
+    return;
+  }
+
+  const funnyLines =  [
+    `${name} reporting for duty, sir!`,
+   `Hey! I'm ${name} and I'm feeling grain-tastic!`,
+    `Did someone say carbs? I'm ${name}, and I approve this message.`,
+    `I'm ${name}... and yes, I'm a little cracked.`,
+    `Rice to meet you! I’m ${name}.`,
+    `Stop staring! ${name} is shy.`,
+    `I’m ${name}, a grain with a brain!`,
+    `Don’t boil me, bro! I’m ${name}.`,
+    `Hi! ${name} here, living my best grain life.`,
+    `Why did the rice cross the plate? To say hi, I’m ${name}!`
+  ];
+
+
+  const utterance = new SpeechSynthesisUtterance();
+  utterance.text = funnyLines[Math.floor(Math.random() * funnyLines.length)];
+  utterance.lang = 'en-US';
+  
+  if (synth.speaking) {
+    synth.cancel();
+  }
+  
+  synth.speak(utterance);
+}

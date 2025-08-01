@@ -106,7 +106,7 @@ html {
 }
 
 .right-landing .quote::after {
-    content: '”';
+    content: '';
     position: absolute;
     right: 16px;
     bottom: 10px;
@@ -155,7 +155,7 @@ section + #main-wrapper {
     box-shadow: var(--box-shadow-heavy);
     overflow: hidden;
     margin: 0 auto 100px;
-    transition: 0.4s ease-in-out;
+    transition: grid-template-columns 0.4s ease-in-out;
 }
 
 #main-wrapper.full-camera {
@@ -205,6 +205,15 @@ h2 {
     animation: slideInLeft 0.8s ease-out;
 }
 
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.input-group input {
+    flex-grow: 1;
+}
+
 input[type="text"] {
     padding: 12px;
     border: 2px solid #bdc3c7;
@@ -235,8 +244,12 @@ button {
 }
 
 button:hover {
-    background-color: var(--primary-color);
+    background-color: #1c2833;
     transform: translateY(-3px);
+}
+
+#start-btn:hover {
+    background-color: #3e5066;
 }
 
 #stop-btn {
@@ -244,16 +257,6 @@ button:hover {
 }
 #stop-btn:hover {
     background-color: #c0392b;
-}
-
-.camera-side div {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.camera-side > button {
-    width: 100%;
 }
 
 #nameList {
@@ -271,8 +274,26 @@ button:hover {
     border: 1px solid #bdc3c7;
 }
 
-/* === Canvas/Image Preview === */
-#outputCanvas,
+/* === Camera Display === */
+video, #outputCanvas {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-light);
+    background-color: #bdc3c7;
+    border: 2px solid #bdc3c7;
+    object-fit: contain;
+}
+
+video {
+    display: none;
+}
+
+#outputCanvas.active {
+    display: block;
+}
+
 #snapshotPreview {
     width: 100%;
     max-width: 400px;
@@ -283,7 +304,7 @@ button:hover {
     object-fit: cover;
 }
 
-/* === Responsive === */
+
 @media (max-width: 768px) {
     .landing {
         flex-direction: column;
@@ -320,7 +341,10 @@ button:hover {
         font-size: 2rem;
     }
 
-    input[type="text"],
+    .input-group {
+        flex-direction: column;
+    }
+
     .camera-side > button {
         width: 100%;
     }
@@ -340,3 +364,40 @@ button:hover {
         font-size: 0.95rem;
     }
 }
+
+.quote {
+            font-size: 1.8rem;
+            color: var(--dark-text); /* Darker text for readability on lighter background */
+            margin-bottom: 25px;
+            background: var(--card-background); /* White background for quote */
+            padding: 20px 25px;
+            border-left: 8px solid var(--primary-accent); /* Accent color border */
+            border-radius: var(--border-radius-soft);
+            box-shadow: var(--shadow-soft); /* Soft shadow */
+            line-height: 1.4; /* Better readability */
+
+            /* New: Scrolling text properties */
+            white-space: nowrap; /* Prevent text from wrapping */
+            overflow: hidden; /* Hide overflowing text */
+            position: relative; /* For absolute positioning of inner span */
+            max-width: 100%; /* Ensure it respects parent width */
+            display: inline-block; /* Allow padding/margin to apply correctly */
+        }
+
+        .quote span.scrolling-text {
+            display: inline-block; /* Make the span behave like a block for animation */
+            padding-left: 100%; /* Start the text off-screen to the right */
+            animation: scroll-left 20s linear infinite; /* Animation definition */
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); } /* Scroll to the left */
+        }
+
+        /* Original quote animation (no longer directly applied to .quote but kept for reference if needed elsewhere) */
+        @keyframes quote-loop-float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
