@@ -4,25 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Find-My-Grain-App</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    #videoInput, canvas { border: 1px solid #333; margin: 10px auto; display: block; }
-    input, button { margin: 5px; padding: 10px; }
-    #nameList { margin-top: 10px; font-weight: bold; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h2>Find My Grain</h2>
-  <p>Enter participant name and click Add:</p>
-  <input type="text" id="nameInput" placeholder="Enter name" />
-  <button onclick="addParticipant()">Add</button>
-  <div id="nameList"></div>
+  
+<div id="main-wrapper">
+  <div class="grain-side" id="grainSide">
+    <img src="grainImg.png" alt="Wheat Mascot" id="grainImg" />
+  </div>
 
-  <button onclick="startApp()">Start Camera & Assign</button>
-  <button onclick="stopCamera()">Stop Camera</button>
+  <div class="camera-side">
+    <h2>Find My Grain</h2>
 
-  <video id="videoInput" width="400" height="300" autoplay muted playsinline></video>
-  <canvas id="outputCanvas" width="400" height="300"></canvas>
+    <p>Enter participant name and click Add:</p>
+    <input type="text" id="nameInput" placeholder="Enter name" />
+    <button onclick="addParticipant()">Add</button>
+    <div id="nameList"></div>
+
+    <button onclick="startApp()" id="start-btn">Start Camera & Assign</button>
+    <button onclick="stopCamera()" id="stop-btn">Stop Camera</button>
+
+    <video id="videoInput" width="400" height="300" autoplay muted playsinline style="display: none;"></video>
+    <canvas id="outputCanvas" width="400" height="300"></canvas>
+
+    <h4>Last Snapshot:</h4>
+    <img id="snapshotPreview" width="320" />
+  </div>
+</div>
+
   <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady()"></script>
   <script defer src="script.js"></script>
 </body>
