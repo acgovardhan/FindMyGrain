@@ -1,6 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find-My-Grain-App</title>
+  <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  
+  <section class="landing">
+        <div class="left-landing">
+            <img src="./mohanlall.png" alt="Mohanlal" />
+        </div>
+        <div class="right-landing">
+            <h1 class="main-heading">FindMyGrain</h1>
+            <div class="quote">
+                <span class="scrolling-text">“ഇത് വെറും അരിയല്ല... ഇതാണ് തിരിച്ചറിയൽ!”</span>
+            </div>
+            <button class="start-button" onclick="document.getElementById('main-wrapper').scrollIntoView({ behavior: 'smooth' })">
+                Start Scanning
+            </button>
+            <footer>Approved by Lalettan ✨</footer>
+        </div>
+  </section>
+    
+<div id="main-wrapper">
+  <div class="grain-side" id="grainSide">
+    <img src="grainImg.png" alt="Wheat Mascot" id="grainImg" />
+  </div>
 
+  <div class="camera-side">
+
+    <p>Enter participant name and click Add:</p>
+    <input type="text" id="nameInput" placeholder="Enter name" />
+    <button onclick="addParticipant()">Add</button>
+    <div id="nameList"></div>
+
+    <button onclick="startApp()" id="start-btn">Start Camera & Assign</button>
+    <button onclick="stopCamera()" id="stop-btn">Stop Camera</button>
+
+    <video id="videoInput" width="400" height="300" autoplay muted playsinline style="display: none;"></video>
+    <canvas id="outputCanvas" width="400" height="300"></canvas>
+
+    <h4>Last Snapshot:</h4>
+    <img id="snapshotPreview" width="320" />
+  </div>
+</div>
+    
+  <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady()"></script>
+  <script defer src="script.js"></script>
 </body>
 </html>
