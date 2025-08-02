@@ -71,7 +71,7 @@ For Hardware:
 *This video demonstrates the full functionality of the FindMyGrain application, from adding participants to grain detection and the voice feature.*
 
 # Additional Demos
-[Add any extra demo materials/links]
+[---]
 
 ## Team Contributions
 - **A C Govardhan:** Implemented the computer vision logic for grain detection and tracking. Contributed to the front-end structure and functionality.
