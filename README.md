@@ -67,7 +67,7 @@ For Hardware:
 
 ### Project Demo
 # Video
-[Add your demo video link here]
+[Demo video link](https://drive.google.com/drive/folders/1uWHH5U7Q3oF2sKrUjHSRhPfs_Itu7wA2?usp=sharing)
 *This video demonstrates the full functionality of the FindMyGrain application, from adding participants to grain detection and the voice feature.*
 
 # Additional Demos
