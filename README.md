@@ -45,17 +45,21 @@ For Software:
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot of the UI with names being added)
+![Screenshot1](./ss2.png)
+*A screenshot showing the landing page.*
+
+![Screenshot1](./ss1.png)
 *A screenshot showing the main interface where participants can add their names.*
 
-![Screenshot2](Add screenshot of the video feed with grains detected)
-*This screenshot demonstrates the OpenCV-based detection, with grains highlighted and assigned with names.*
+![Screenshot2](./ss4.png)
+*This screenshot shows the participants added.*
 
-![Screenshot3](Add screenshot of a clicked grain with a voice icon/indicator)
-*A screenshot showing a grain that has been clicked, with a caption indicating the voice output.*
+![Screenshot2](./ssmain.png)
+*This screenshot shows the OpenCv Detection on a dummy input of black dots representing rice grains.*
+
 
 # Diagrams
-![Workflow](Add your workflow/architecture diagram here)
+![Workflow](./diagram.jpg)
 *This diagram illustrates the project's workflow, from user input to OpenCV detection and voice output.*
 
 For Hardware:
